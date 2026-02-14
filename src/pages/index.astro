@@ -1,11 +1,247 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Mapa from '../components/Mapa.astro';
+import Lluvia from '../components/Lluvia.astro';
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Nuestro Álbum - Denis & Katherine">
+    <Lluvia />
+    
+    <main>
+        <header>
+            <h1>Nuestra Historia en el Mapa ❤️</h1>
+            <p>Cada rincón de Huaraz guarda un recuerdo nuestro.</p>
+        </header>
+
+        <section class="counter-box glass">
+            <p>Juntos construyendo nuestra historia desde el 05/12/2025:</p>
+            <div id="contador" class="timer">Cargando...</div>
+        </section>
+
+        <section class="map-container">
+            <Mapa />
+        </section>
+
+        <section class="intro">
+            <h2>Momentos Especiales</h2>
+            <p>Haz zoom en el mapa para encontrar nuestros lugares favoritos.</p>
+        </section>
+
+        <div class="music-player">
+            <button id="playBtn">🎵 Nuestra Canción</button>
+            <audio id="cancion" loop>
+                <source src="/assets/nuestra-cancion.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+
+        <footer class="scientific-footer">
+            <p>Hecho con ❤️ por Denis</p>
+            <small>"Nuestra conexión es más fuerte que un enlace covalente." 🧪</small>
+        </footer>
+    </main>
 </Layout>
+
+<style>
+    /* 1. CONFIGURACIÓN GENERAL */
+    main {
+        margin: auto;
+        padding: 1rem;
+        width: 800px;
+        max-width: calc(100% - 2rem);
+        color: var(--text-color, #23262d); 
+        font-size: 20px;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    p { margin-top: 0; }
+
+    /* 2. CAJA DEL CONTADOR MEJORADA */
+    .counter-box {
+        text-align: center;
+        margin: 2rem auto;
+        padding: 1.5rem;
+        max-width: 600px;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(5px);
+        box-shadow: 0 4px 15px rgba(209, 17, 65, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .counter-box:hover {
+        transform: scale(1.02); /* Pequeño efecto al pasar el mouse */
+    }
+
+    :global(body.night) .counter-box {
+        background: rgba(0, 0, 0, 0.4);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .timer {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-top: 10px;
+        
+        /* TRUCO PRO: tabular-nums hace que los números ocupen el mismo ancho.
+           Así el texto no "tiembla" cuando cambian los segundos (ej: de 1 a 0) */
+        font-variant-numeric: tabular-nums; 
+    }
+
+    /* Animación del corazón en el contador */
+    :global(.heart-beat) {
+        display: inline-block;
+        animation: heartbeat 1.5s infinite;
+    }
+
+    @keyframes heartbeat {
+        0% { transform: scale(1); }
+        15% { transform: scale(1.3); }
+        30% { transform: scale(1); }
+        45% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+    }
+
+    /* 3. MAPA Y OTROS ELEMENTOS */
+    .map-container {
+        margin-bottom: 2rem;
+        animation: fadeInUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        animation-fill-mode: backwards;
+        animation-delay: 0.3s;
+    }
+
+    .intro {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 20px;
+        transition: all 0.5s ease;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        color: #23262d;
+        animation: fadeInUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        animation-fill-mode: backwards;
+        animation-delay: 0.6s;
+    }
+
+    :global(body.night) .intro {
+        background: rgba(0, 0, 0, 0.6);
+        color: #ffffff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* REPRODUCTOR */
+    .music-player {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1000;
+    }
+
+    button {
+        background: rgba(255, 255, 255, 0.25);
+        color: var(--primary);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 12px 25px;
+        border-radius: 50px;
+        cursor: pointer;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    :global(body.night) button {
+        background: rgba(0, 0, 0, 0.5);
+        color: #ff9a9e;
+        border-color: rgba(255, 154, 158, 0.3);
+    }
+
+    button:hover {
+        transform: scale(1.05);
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    /* FOOTER */
+    .scientific-footer {
+        text-align: center;
+        margin-top: 4rem;
+        padding: 2rem;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    .scientific-footer small {
+        display: block;
+        margin-top: 5px;
+        font-style: italic;
+        color: var(--primary);
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    // 1. LÓGICA DEL REPRODUCTOR
+    const btn = document.getElementById('playBtn');
+    const audio = document.getElementById('cancion');
+    
+    if(btn && audio) {
+        btn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                btn.innerText = "⏸️ Pausar";
+            } else {
+                audio.pause();
+                btn.innerText = "🎵 Nuestra Canción";
+            }
+        });
+    }
+
+    // 2. LÓGICA DEL CONTADOR ACTUALIZADA
+    // Fecha exacta: 5 de Diciembre de 2025 a las 00:00:00
+    const fechaInicio = new Date('2025-12-05T00:00:00'); 
+
+    function actualizarContador() {
+        const contadorElement = document.getElementById('contador');
+        if(!contadorElement) return;
+
+        const ahora = new Date();
+        const diferencia = ahora.getTime() - fechaInicio.getTime();
+
+        const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+        const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+        const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+
+        // Añadimos la clase 'heart-beat' al corazón para que lata
+        contadorElement.innerHTML = 
+            `${dias} días, ${horas}h ${minutos}m ${segundos}s <span class="heart-beat">❤️</span>`;
+    }
+
+    setInterval(actualizarContador, 1000);
+    actualizarContador();
+</script>

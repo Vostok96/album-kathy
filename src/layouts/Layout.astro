@@ -6,18 +6,139 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>Nuestra Historia ❤️</title>
 	</head>
 	<body>
 		<slot />
+		<script>
+			function setTimeTheme() {
+				const hour = new Date().getHours();
+				const body = document.body;
+				
+				// Limpiamos clases anteriores
+				body.classList.remove('day', 'sunset', 'night');
+
+				if (hour >= 6 && hour < 17) {
+					body.classList.add('day'); // De 6am a 5pm
+				} else if (hour >= 17 && hour < 19) {
+					body.classList.add('sunset'); // De 5pm a 7pm
+				} else {
+					body.classList.add('night'); // De 7pm a 6am
+				}
+			}
+
+			// Ejecutar al cargar
+			setTimeTheme();
+		</script>
 	</body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+<style is:global /* ... tus estilos anteriores ... */
+
+/* ... tus estilos anteriores en Layout.astro ... */
+
+/* PERSONALIZACIÓN DE LA BARRA DE SCROLL */
+/* Ancho de la barra */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Color del fondo de la barra (el carril) */
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3); /* Translúcido para que se vea el fondo */
+    border-radius: 10px;
+}
+
+/* Color de la barra en sí (el pulgar) */
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #d11141, #ff4d6d); /* Degradado romántico */
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.5); /* Un borde sutil */
+}
+
+/* Color de la barra al pasar el mouse por encima */
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #ff4d6d, #d11141);
+}
+
+/* SELECCIÓN DE TEXTO PERSONALIZADA */
+/* Al seleccionar texto, el fondo será rosa y el texto blanco */
+::selection {
+    background: #ff4d6d;
+    color: white;
+    text-shadow: none;
+}
+
+/* 1. PERSONALIZACIÓN DE LA BARRA DE SCROLL */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+::-webkit-scrollbar-thumb {
+    background: #d11141; /* Rojo romántico */
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ff4d6d;
+}
+
+/* 2. CUANDO SELECCIONAS TEXTO */
+/* En lugar del azul aburrido, que sea rosa */
+::selection {
+    background: #ff9a9e;
+    color: white;
+}>
+	
+	/* Importamos fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;700&display=swap');
+
+:root {
+    --primary: #d11141; 
+    --text-color: #23262d;
+    --bg-gradient: linear-gradient(to bottom, #fad0c4 0%, #ffd1ff 100%); /* Por defecto día */
+}
+
+/* MODO DÍA (6am - 5pm) */
+body.day {
+    --text-color: #23262d;
+    --bg-gradient: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+}
+
+/* MODO TARDE (5pm - 7pm) - Golden Hour */
+body.sunset {
+    --text-color: #4a0e0e;
+    --bg-gradient: linear-gradient(to top, #fcc5e4 0%, #fda34b 15%, #ff7882 35%, #c8699e 52%, #7046aa 71%, #0c1db8 87%, #020f75 100%);
+}
+
+/* MODO NOCHE (7pm - 6am) - Romántico Oscuro */
+body.night {
+    --text-color: #ffffff; /* Texto blanco para que se lea */
+    --bg-gradient: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+}
+
+html {
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+}
+
+body {
+    background-image: var(--bg-gradient);
+    background-attachment: fixed; /* El fondo no se mueve al scrollear */
+    color: var(--text-color);
+    transition: background 1s ease, color 1s ease; /* Transición suave si cambia la hora */
+    margin: 0;
+}
+
+h1, h2 {
+    font-family: 'Dancing Script', cursive;
+    color: var(--primary);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Ajuste para noche: el texto blanco necesita sombra para resaltar más */
+body.night h1, body.night h2 {
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
 </style>

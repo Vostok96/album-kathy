@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "nombre": "Hospital Víctor Ramos Guardia",
+    "coords": [-9.5298, -77.5288],
+    "descripcion": "Donde compartimos el día a día en el laboratorio.",
+    "fotos": ["/assets/hvrg-1.webp", "/assets/hvrg-2.webp"]
+  },
+  {
+    "id": 2,
+    "nombre": "Plaza de Armas de Huaraz",
+    "coords": [-9.5302, -77.5283],
+    "descripcion": "Nuestros paseos nocturnos.",
+    "fotos": ["/assets/plaza.webp"]
+  }
+]

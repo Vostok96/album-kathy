@@ -1,0 +1,177 @@
+---
+import 'leaflet/dist/leaflet.css';
+---
+
+<div id="map-container">
+    <div id="map"></div>
+</div>
+
+<style>
+  #map-container {
+    height: 60vh;
+    width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+  }
+
+  #map {
+    height: 100%;
+    width: 100%;
+    background: #dddddd;
+  }
+
+  /* --- MODO NOCHE (Inversión de colores) --- */
+  :global(.night-mode .leaflet-layer) {
+    filter: invert(100%) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+  }
+
+  /* Estilos del Popup */
+  :global(.leaflet-popup-content-wrapper) {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  }
+  :global(.leaflet-popup-content) {
+    margin: 10px;
+    width: 260px !important; /* Un poco más ancho para el video */
+  }
+
+  /* Carrusel */
+  :global(.popup-carrusel) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+  
+  /* Estilo para FOTOS y VIDEOS */
+  :global(.popup-media) {
+    scroll-snap-align: center;
+    flex: 0 0 100%;
+    width: 100%;
+    height: 180px; /* Altura uniforme */
+    object-fit: cover;
+    border-radius: 8px;
+    background: #000; /* Fondo negro para videos */
+  }
+</style>
+
+<script>
+  import L from 'leaflet';
+
+  // --- 1. TUS DATOS EXACTOS ---
+  const lugares = [
+    {
+      nombre: "Paradero Yungay",
+      coords: [-9.140483, -77.747122],
+      carpeta: "/assets/paradero_yungay/",
+      archivos: ["1.jpg", "2.jpg"],
+      detalle: "Donde todo comenzó."
+    },
+    {
+      nombre: "Plaza de Armas Huaraz",
+      coords: [-9.530076652832513, -77.5289125049557],
+      carpeta: "/assets/plaza_huaraz/",
+      archivos: ["1.jpg", "2.jpg", "3.jpg", "4.mp4"], // ¡Incluye el video!
+      detalle: "Nuestra primera navidad ♥🎄."
+    },
+    {
+      nombre: "Restaurante Alpamayo",
+      coords: [-9.137856496203716, -77.74927478735465],
+      carpeta: "/assets/restaurante_alpamayo/",
+      archivos: ["1.jpg", "2.jpg"],
+      detalle: "Nos encanta la comida 🥩."
+    },
+    {
+      nombre: "Hospital Yungay",
+      coords: [-9.138485550280874, -77.74547412468203],
+      carpeta: "/assets/hospital_yungay/",
+      archivos: ["1.jpg", "2.jpg"],
+      detalle: "El lugar menos esperado para inicar una historia."
+    },
+    {
+      nombre: "Pastorita Huarazina",
+      coords: [-9.523613044180848, -77.52563108130438],
+      carpeta: "/assets/pastorita/",
+      archivos: ["1.jpg", "2.jpg", "3.jpg"],
+      detalle: "Me gusta tu compañia ♥."
+    },
+    {
+      nombre: "Santa Cruz",
+      coords: [-9.52636950512217, -77.53031466746233],
+      carpeta: "/assets/santa_cruz/",
+      archivos: ["1.jpg"],
+      detalle: "Ya se volvio nuestro favorito"
+    }
+  ];
+
+  // --- 2. INICIALIZAR EL MAPA ---
+  const mapStyle = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+  const container = L.DomUtil.get('map');
+  if(container != null){ container._leaflet_id = null; }
+
+  // Centramos el mapa en Huaraz (Plaza de Armas) inicialmente
+  // Zoom 9 para que se vea tanto Yungay como Huaraz al principio
+  const map = L.map('map').setView([-9.35, -77.60], 10); 
+
+  L.tileLayer(mapStyle, {
+    attribution: '© OpenStreetMap & CartoDB',
+    subdomains: 'abcd',
+    maxZoom: 20
+  }).addTo(map);
+
+  // --- 3. LÓGICA DE HORA (DÍA / NOCHE) ---
+  const hour = new Date().getHours();
+  const mapContainer = document.getElementById('map-container');
+
+  if (hour >= 19 || hour < 6) {
+      mapContainer.classList.add('night-mode');
+  } else {
+      mapContainer.classList.remove('night-mode');
+  }
+
+  // --- 4. ICONO CORAZÓN ---
+  const iconoCorazon = L.divIcon({
+    html: `<div style="font-size: 32px; filter: drop-shadow(0 3px 2px rgba(0,0,0,0.3)); transition: transform 0.2s;">❤️</div>`,
+    className: 'custom-icon',
+    iconSize: [35, 35],
+    iconAnchor: [17, 35], // Punta del corazón en la coordenada
+    popupAnchor: [0, -35]
+  });
+
+  // --- 5. GENERAR MARCADORES ---
+  lugares.forEach(lugar => {
+    
+    // Lógica para detectar si es VIDEO o FOTO
+    const mediaHtml = lugar.archivos.map(archivo => {
+        const rutaCompleta = lugar.carpeta + archivo;
+        
+        if (archivo.endsWith('.mp4')) {
+            // Es un video
+            return `<video src="${rutaCompleta}" class="popup-media" controls muted playsinline></video>`;
+        } else {
+            // Es una imagen
+            return `<img src="${rutaCompleta}" class="popup-media" onerror="this.style.display='none'"/>`;
+        }
+    }).join('');
+
+    // HTML del Popup
+    const popupHtml = `
+      <div style="font-family: 'Montserrat', sans-serif;">
+        <h3 style="color: #d11141; margin: 0 0 8px 0; font-family: 'Dancing Script', cursive; font-size: 22px;">${lugar.nombre}</h3>
+        <div class="popup-carrusel">
+            ${mediaHtml}
+        </div>
+        <p style="font-size: 13px; color: #444; margin-top: 8px; line-height: 1.4;">${lugar.detalle}</p>
+      </div>
+    `;
+
+    L.marker(lugar.coords, { icon: iconoCorazon }).addTo(map).bindPopup(popupHtml);
+  });
+</script>
