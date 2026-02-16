@@ -59,6 +59,44 @@ import 'leaflet/dist/leaflet.css';
     border-radius: 8px;
     background: #000; /* Fondo negro para videos */
   }
+  /* --- PERSONALIZACIÓN DE BOTONES DE ZOOM --- */
+  
+  /* 1. Quitamos el borde feo que los une */
+  :global(.leaflet-control-zoom) {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* 2. Estilo para CADA botón (+ y -) */
+  :global(.leaflet-control-zoom-in),
+  :global(.leaflet-control-zoom-out) {
+    background-color: rgba(255, 255, 255, 0.9) !important; /* Blanco casi puro */
+    color: #d11141 !important; /* El rojo de tu tema */
+    border-radius: 50% !important; /* ¡CÍRCULOS PERFECTOS! */
+    width: 40px !important;
+    height: 40px !important;
+    line-height: 40px !important; /* Para centrar el texto verticalmente */
+    font-size: 20px !important;
+    font-weight: bold !important;
+    margin-bottom: 12px !important; /* Espacio entre ellos */
+    box-shadow: 0 4px 15px rgba(209, 17, 65, 0.2) !important; /* Sombra roja suave */
+    border: none !important;
+    transition: all 0.3s ease;
+    
+    /* Centrar el signo + y - perfectamente */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 3. Efecto al pasar el mouse (Hover) */
+  :global(.leaflet-control-zoom-in:hover),
+  :global(.leaflet-control-zoom-out:hover) {
+    transform: scale(1.15); /* Se agrandan un poquito */
+    background-color: #fff !important;
+    box-shadow: 0 6px 20px rgba(209, 17, 65, 0.4) !important;
+    cursor: pointer;
+  }
 </style>
 
 <script>
@@ -70,44 +108,79 @@ import 'leaflet/dist/leaflet.css';
       nombre: "Paradero Yungay",
       coords: [-9.140483, -77.747122],
       carpeta: "/assets/paradero_yungay/",
-      archivos: ["1.jpg", "2.jpg"],
+      archivos: ["1.webp", "2.webp"],
       detalle: "Donde todo comenzó."
     },
     {
       nombre: "Plaza de Armas Huaraz",
       coords: [-9.530076652832513, -77.5289125049557],
       carpeta: "/assets/plaza_huaraz/",
-      archivos: ["1.jpg", "2.jpg", "3.jpg", "4.mp4"], // ¡Incluye el video!
-      detalle: "Nuestra primera navidad ♥🎄."
+      archivos: ["1.webp", "2.webp", "3.webp", "4.webm"], // ¡Incluye el video!
+      detalle: "Nuestra primera navidad ❤️🎄."
     },
     {
       nombre: "Restaurante Alpamayo",
       coords: [-9.137856496203716, -77.74927478735465],
       carpeta: "/assets/restaurante_alpamayo/",
-      archivos: ["1.jpg", "2.jpg"],
+      archivos: ["1.webp", "2.webp"],
       detalle: "Nos encanta la comida 🥩."
     },
     {
       nombre: "Hospital Yungay",
       coords: [-9.138485550280874, -77.74547412468203],
       carpeta: "/assets/hospital_yungay/",
-      archivos: ["1.jpg", "2.jpg"],
+      archivos: ["1.webp", "2.webp"],
       detalle: "El lugar menos esperado para inicar una historia."
     },
     {
       nombre: "Pastorita Huarazina",
       coords: [-9.523613044180848, -77.52563108130438],
       carpeta: "/assets/pastorita/",
-      archivos: ["1.jpg", "2.jpg", "3.jpg"],
-      detalle: "Me gusta tu compañia ♥."
+      archivos: ["1.webp", "2.webp", "3.webp"],
+      detalle: "Me gusta tu compañia ❤️."
     },
     {
       nombre: "Santa Cruz",
       coords: [-9.52636950512217, -77.53031466746233],
       carpeta: "/assets/santa_cruz/",
-      archivos: ["1.jpg"],
+      archivos: ["1.webp"],
       detalle: "Ya se volvio nuestro favorito"
-    }
+    },
+    {
+      nombre: "Nuestra Primera Casita",
+      coords: [-9.531765036825135, -77.52417912371611],
+      carpeta: "/assets/primera_casita/",
+      archivos: ["1.webp", "2.webp", "3.webp"],
+      detalle: "El primer lugar donde convivimos🧀"
+    },
+    {
+      nombre: "Nuestra Primera Laguna",
+      coords: [-8.992755144750406, -77.67236627008545],
+      carpeta: "/assets/primera_laguna/",
+      archivos: ["1.webp", "2.webp", "3.webp", "4.webp", "5.webp"],
+      detalle: "Laguna Parón🏞️"
+    },
+    {
+      nombre: "A donde llegaste sin pensarlo",
+      coords: [-9.534458845513504, -77.52929508952055],
+      carpeta: "/assets/victor_ramos/",
+      archivos: ["1.webp", "2.webp", "3.webp", "4.webp", "5.webp"],
+      detalle: "Chucky siempre te seguira"
+    },
+    {
+      nombre: "Casi nos quedamos sin carro",
+      coords: [-9.047670367115265, -77.81054769300849],
+      carpeta: "/assets/caraz/",
+      archivos: ["1.webm"],
+      detalle: "Por comer pollito 🍗"
+    },
+    {
+      nombre: "Año nuevo en chimbote",
+      coords: [-9.079268557290458, -78.58671285799079],
+      carpeta: "/assets/chimbote/",
+      archivos: ["1.webp", "2.webp", "3.webm", "4.webp", "5.webp", "6.webp"],
+      detalle: "Se quedo dormida con el brindis 🍷"
+    },
   ];
 
   // --- 2. INICIALIZAR EL MAPA ---
@@ -152,9 +225,10 @@ import 'leaflet/dist/leaflet.css';
     const mediaHtml = lugar.archivos.map(archivo => {
         const rutaCompleta = lugar.carpeta + archivo;
         
-        if (archivo.endsWith('.mp4')) {
+        // Aceptamos mp4 O webm como video
+        if (archivo.endsWith('.mp4') || archivo.endsWith('.webm')) {
             // Es un video
-            return `<video src="${rutaCompleta}" class="popup-media" controls muted playsinline></video>`;
+            return `<video src="${rutaCompleta}" class="popup-media" controls playsinline></video>`;
         } else {
             // Es una imagen
             return `<img src="${rutaCompleta}" class="popup-media" onerror="this.style.display='none'"/>`;

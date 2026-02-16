@@ -1,0 +1,99 @@
+<div class="night-sky-container">
+    <div class="stars-bg"></div>
+    
+    <img src="/assets/luna.png" class="the-moon" alt="Luna">
+
+    <div class="comet c1"></div>
+    <div class="comet c2"></div>
+    <div class="comet c3"></div>
+    <div class="comet c4"></div>
+</div>
+
+<style>
+    /* CONTENEDOR PRINCIPAL */
+    .night-sky-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1; /* Detrás de todo, incluso de la lluvia y nubes */
+        
+        /* POR DEFECTO: OCULTO (Es de día) */
+        opacity: 0;
+        transition: opacity 1.5s ease-in-out;
+    }
+
+    /* --- MAGIA: SOLO VISIBLE DE NOCHE --- */
+    /* Cuando el body tiene la clase .night, esto aparece suavemente */
+    :global(body.night) .night-sky-container {
+        opacity: 1;
+    }
+
+    /* 1. ESTRELLAS DE FONDO */
+    .stars-bg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url('/assets/estrellas.png');
+        background-repeat: repeat;
+        background-size: 300px; /* Ajusta según el tamaño de tu imagen */
+        opacity: 0.5; /* Que no brillen demasiado */
+    }
+
+    /* 2. LA LUNA */
+    .the-moon {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        width: 80px; /* Ajusta el tamaño a tu gusto */
+        height: auto;
+        filter: drop-shadow(0 0 15px rgba(255, 255, 200, 0.3)); /* Brillo suave */
+        opacity: 0.9;
+    }
+
+    /* 3. COMETAS (CSS PURO) */
+    .comet {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 4px;
+        height: 4px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(255,255,255,0.1), 0 0 0 8px rgba(255,255,255,0.1), 0 0 20px rgba(255,255,255,1);
+        animation: shoot 3s linear infinite;
+        opacity: 0; /* Empiezan invisibles */
+    }
+    
+    /* La cola del cometa */
+    .comet::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 200px; /* Largo de la cola */
+        height: 1px;
+        background: linear-gradient(90deg, #fff, transparent);
+    }
+
+    /* Animación de caída */
+    @keyframes shoot {
+        0% {
+            transform: rotate(315deg) translateX(0);
+            opacity: 0;
+        }
+        10% { opacity: 1; } /* Aparece rápido */
+        100% {
+            transform: rotate(315deg) translateX(-800px); /* Se mueve lejos */
+            opacity: 0;
+        }
+    }
+
+    /* Posiciones y tiempos diferentes para cada cometa */
+    .c1 { top: 10%; left: 80%; animation-delay: 0s; animation-duration: 4s; }
+    .c2 { top: 20%; left: 95%; animation-delay: 2.5s; animation-duration: 5s; }
+    .c3 { top: 40%; left: 70%; animation-delay: 5s; animation-duration: 3.5s; }
+    .c4 { top: 15%; left: 60%; animation-delay: 7s; animation-duration: 6s; }
+</style>

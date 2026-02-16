@@ -1,0 +1,67 @@
+<div class="clouds-container">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+</div>
+
+<style>
+    .clouds-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /* Para que no bloquee los clics */
+        z-index: 0; /* Detrás del contenido principal */
+        overflow: hidden;
+    }
+
+    .cloud {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 200%; /* Más ancho que la pantalla para el loop */
+        height: 100%;
+        background-image: url('/assets/nube.png'); /* <--- TU IMAGEN AQUÍ */
+        background-repeat: repeat-x;
+        background-size: contain;
+        background-position: center top;
+        opacity: 0.6;
+        transition: filter 1s ease, opacity 1s ease;
+    }
+
+    /* Nube 1: Se mueve lento a la izquierda */
+    .cloud-1 {
+        animation: moveClouds 60s linear infinite;
+    }
+
+    /* Nube 2: Más rápida, más transparente, un poco más abajo */
+    .cloud-2 {
+        top: 10%;
+        opacity: 0.4;
+        animation: moveClouds 45s linear infinite reverse; /* Se mueve al otro lado */
+    }
+
+    @keyframes moveClouds {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+    }
+
+    /* --- CÓDIGO MÁGICO DE COLORES SEGÚN LA HORA --- */
+
+    /* DÍA (Por defecto): Nubes blancas suaves */
+    :global(body) .cloud {
+        filter: brightness(1);
+    }
+
+    /* ATARDECER (Sunset - 5pm a 7pm): Nubes naranjas/rosadas */
+    /* Usamos filtros para teñir la imagen blanca */
+    :global(body.sunset) .cloud {
+        filter: sepia(1) saturate(3) hue-rotate(-20deg) opacity(0.8);
+    }
+
+    /* NOCHE (Night): Nubes oscuras y sutiles */
+    :global(body.night) .cloud {
+        filter: brightness(0.1) contrast(1.2);
+        opacity: 0.3;
+    }
+</style>
