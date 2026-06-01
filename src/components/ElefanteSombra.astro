@@ -1,0 +1,118 @@
+<div class="elephant-clue" aria-hidden="true">
+  <div class="elephant-glow"></div>
+  <div class="elephant-wrap">
+    <svg class="elephant" viewBox="0 0 390 270" role="presentation">
+      <g class="elephant-shadow">
+        <ellipse cx="216" cy="130" rx="112" ry="78"></ellipse>
+        <circle cx="103" cy="145" r="60"></circle>
+        <ellipse cx="132" cy="142" rx="43" ry="52" class="ear"></ellipse>
+        <rect x="151" y="167" width="39" height="77" rx="17"></rect>
+        <rect x="245" y="165" width="39" height="79" rx="17"></rect>
+        <path d="M55 151c-29 21-30 67-7 88 18 16 43 5 43-17"></path>
+        <path d="M323 124c33 10 34 40 20 60"></path>
+      </g>
+      <circle cx="79" cy="132" r="5" class="eye"></circle>
+      <path d="M66 173c14 2 22 1 31-6" class="smile"></path>
+    </svg>
+    <p>Una pequeña pista pasó por aquí...</p>
+  </div>
+</div>
+
+<style>
+  .elephant-clue {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    overflow: hidden;
+    background: rgba(255, 246, 248, 0.12);
+    animation: clue-fade 2s ease-in-out forwards;
+  }
+
+  .elephant-glow {
+    position: absolute;
+    width: min(82vw, 580px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 246, 248, 0.55), rgba(255, 246, 248, 0));
+    filter: blur(10px);
+  }
+
+  .elephant-wrap {
+    position: relative;
+    display: grid;
+    place-items: center;
+    color: rgba(72, 43, 58, 0.86);
+    animation: clue-float 2s ease-out forwards;
+  }
+
+  .elephant {
+    width: min(72vw, 390px);
+    overflow: visible;
+    filter: drop-shadow(0 24px 18px rgba(71, 38, 55, 0.2));
+  }
+
+  .elephant-shadow {
+    fill: currentColor;
+  }
+
+  .elephant-shadow path {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-width: 24;
+  }
+
+  .ear {
+    fill: rgba(105, 68, 86, 0.78);
+  }
+
+  .eye {
+    fill: rgba(255, 246, 248, 0.88);
+  }
+
+  .smile {
+    fill: none;
+    stroke: rgba(255, 246, 248, 0.7);
+    stroke-linecap: round;
+    stroke-width: 4;
+  }
+
+  p {
+    margin: -0.7rem 0 0;
+    color: rgba(83, 45, 64, 0.84);
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+  }
+
+  :global(body.night) .elephant-clue {
+    background: rgba(8, 22, 40, 0.12);
+  }
+
+  :global(body.night) .elephant-wrap {
+    color: rgba(244, 191, 203, 0.82);
+  }
+
+  :global(body.night) p {
+    color: rgba(255, 221, 228, 0.9);
+  }
+
+  @keyframes clue-fade {
+    0%, 38% { opacity: 1; visibility: visible; }
+    100% { opacity: 0; visibility: hidden; }
+  }
+
+  @keyframes clue-float {
+    from { opacity: 0; transform: translateY(18px) scale(0.95); }
+    24% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0.92; transform: translateY(-8px) scale(1.02); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .elephant-clue {
+      display: none;
+    }
+  }
+</style>

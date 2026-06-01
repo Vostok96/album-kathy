@@ -1,12 +1,30 @@
+---
+interface Props {
+	title?: string;
+}
+
+const { title = 'Nuestra Historia ❤️' } = Astro.props;
+---
+
 <!doctype html>
-<html lang="en">
+<html lang="es">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#f7c6d0" />
+		<meta
+			name="description"
+			content="Un mapa de recuerdos, viajes y pequeños momentos compartidos."
+		/>
 		<link rel="icon" href="/favicon.ico" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
 		<meta name="generator" content={Astro.generator} />
-		<title>Nuestra Historia ❤️</title>
+		<title>{title}</title>
 	</head>
 	<body>
 		<slot />
@@ -14,131 +32,126 @@
 			function setTimeTheme() {
 				const hour = new Date().getHours();
 				const body = document.body;
-				
-				// Limpiamos clases anteriores
 				body.classList.remove('day', 'sunset', 'night');
 
 				if (hour >= 6 && hour < 17) {
-					body.classList.add('day'); // De 6am a 5pm
+					body.classList.add('day');
 				} else if (hour >= 17 && hour < 19) {
-					body.classList.add('sunset'); // De 5pm a 7pm
+					body.classList.add('sunset');
 				} else {
-					body.classList.add('night'); // De 7pm a 6am
+					body.classList.add('night');
 				}
 			}
 
-			// Ejecutar al cargar
 			setTimeTheme();
+			setInterval(setTimeTheme, 15 * 60 * 1000);
 		</script>
 	</body>
 </html>
 
-<style is:global /* ... tus estilos anteriores ... */
+<style is:global>
+	:root {
+		--primary: #c62f5a;
+		--primary-dark: #8f2044;
+		--primary-soft: #fff0f4;
+		--text-color: #442b39;
+		--muted-color: #765b68;
+		--glass: rgba(255, 255, 255, 0.66);
+		--glass-strong: rgba(255, 255, 255, 0.82);
+		--glass-border: rgba(255, 255, 255, 0.58);
+		--shadow: 0 18px 50px rgba(114, 52, 78, 0.14);
+		--bg-gradient:
+			radial-gradient(circle at 10% 8%, rgba(255, 255, 255, 0.66), transparent 30%),
+			linear-gradient(135deg, #ffe5e8 0%, #f8d7eb 48%, #cfe8ff 100%);
+	}
 
-/* ... tus estilos anteriores en Layout.astro ... */
+	* {
+		box-sizing: border-box;
+	}
 
-/* PERSONALIZACIÓN DE LA BARRA DE SCROLL */
-/* Ancho de la barra */
-::-webkit-scrollbar {
-    width: 10px;
-}
+	html {
+		min-height: 100%;
+		scroll-behavior: smooth;
+		font-family: 'Montserrat', sans-serif;
+	}
 
-/* Color del fondo de la barra (el carril) */
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.3); /* Translúcido para que se vea el fondo */
-    border-radius: 10px;
-}
+	body {
+		min-height: 100vh;
+		margin: 0;
+		background-attachment: fixed;
+		background-image: var(--bg-gradient);
+		color: var(--text-color);
+		transition: background 1s ease, color 1s ease;
+	}
 
-/* Color de la barra en sí (el pulgar) */
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #d11141, #ff4d6d); /* Degradado romántico */
-    border-radius: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.5); /* Un borde sutil */
-}
+	body.day {
+		--bg-gradient:
+			radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.78), transparent 28%),
+			linear-gradient(140deg, #fce4ec 0%, #e5f3ff 48%, #bde3fb 100%);
+	}
 
-/* Color de la barra al pasar el mouse por encima */
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(45deg, #ff4d6d, #d11141);
-}
+	body.sunset {
+		--text-color: #541f3b;
+		--muted-color: #73425a;
+		--bg-gradient:
+			radial-gradient(circle at 16% 8%, rgba(255, 243, 209, 0.7), transparent 28%),
+			linear-gradient(150deg, #ffd1c9 0%, #f8b1ca 42%, #9376bd 100%);
+	}
 
-/* SELECCIÓN DE TEXTO PERSONALIZADA */
-/* Al seleccionar texto, el fondo será rosa y el texto blanco */
-::selection {
-    background: #ff4d6d;
-    color: white;
-    text-shadow: none;
-}
+	body.night {
+		--text-color: #fff7fa;
+		--muted-color: #e7cbd4;
+		--glass: rgba(13, 31, 48, 0.58);
+		--glass-strong: rgba(15, 31, 49, 0.78);
+		--glass-border: rgba(255, 255, 255, 0.14);
+		--shadow: 0 20px 55px rgba(0, 0, 0, 0.26);
+		--bg-gradient: linear-gradient(145deg, #0c1829 0%, #17354c 52%, #2b5363 100%);
+	}
 
-/* 1. PERSONALIZACIÓN DE LA BARRA DE SCROLL */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-}
-::-webkit-scrollbar-thumb {
-    background: #d11141; /* Rojo romántico */
-    border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #ff4d6d;
-}
+	button {
+		font: inherit;
+	}
 
-/* 2. CUANDO SELECCIONAS TEXTO */
-/* En lugar del azul aburrido, que sea rosa */
-::selection {
-    background: #ff9a9e;
-    color: white;
-}>
-	
-	/* Importamos fuentes */
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;700&display=swap');
+	button:focus-visible,
+	a:focus-visible {
+		outline: 3px solid rgba(198, 47, 90, 0.48);
+		outline-offset: 3px;
+	}
 
-:root {
-    --primary: #d11141; 
-    --text-color: #23262d;
-    --bg-gradient: linear-gradient(to bottom, #fad0c4 0%, #ffd1ff 100%); /* Por defecto día */
-}
+	h1,
+	h2,
+	h3 {
+		margin-top: 0;
+		font-family: 'Dancing Script', cursive;
+	}
 
-/* MODO DÍA (6am - 5pm) */
-body.day {
-    --text-color: #23262d;
-    --bg-gradient: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
-}
+	::selection {
+		background: #e66a8c;
+		color: #fff;
+	}
 
-/* MODO TARDE (5pm - 7pm) - Golden Hour */
-body.sunset {
-    --text-color: #4a0e0e;
-    --bg-gradient: linear-gradient(to top, #fcc5e4 0%, #fda34b 15%, #ff7882 35%, #c8699e 52%, #7046aa 71%, #0c1db8 87%, #020f75 100%);
-}
+	::-webkit-scrollbar {
+		width: 9px;
+	}
 
-/* MODO NOCHE (7pm - 6am) - Romántico Oscuro */
-body.night {
-    --text-color: #ffffff; /* Texto blanco para que se lea */
-    --bg-gradient: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
-}
+	::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.22);
+	}
 
-html {
-    font-family: 'Montserrat', sans-serif;
-    min-height: 100vh;
-}
+	::-webkit-scrollbar-thumb {
+		border: 2px solid rgba(255, 255, 255, 0.5);
+		border-radius: 20px;
+		background: linear-gradient(#c62f5a, #e66a8c);
+	}
 
-body {
-    background-image: var(--bg-gradient);
-    background-attachment: fixed; /* El fondo no se mueve al scrollear */
-    color: var(--text-color);
-    transition: background 1s ease, color 1s ease; /* Transición suave si cambia la hora */
-    margin: 0;
-}
-
-h1, h2 {
-    font-family: 'Dancing Script', cursive;
-    color: var(--primary);
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Ajuste para noche: el texto blanco necesita sombra para resaltar más */
-body.night h1, body.night h2 {
-    text-shadow: 0 0 10px rgba(255,255,255,0.3);
-}
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			scroll-behavior: auto !important;
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
 </style>

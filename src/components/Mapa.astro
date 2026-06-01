@@ -2,250 +2,509 @@
 import 'leaflet/dist/leaflet.css';
 ---
 
-<div id="map-container">
+<section class="map-shell" aria-label="Mapa de nuestros recuerdos">
+  <div id="map-container">
+    <div class="map-actions" aria-label="Acciones del mapa">
+      <button id="fit-route" type="button">
+        <span aria-hidden="true">⌖</span>
+        Ver recorrido
+      </button>
+      <button id="random-memory" type="button">
+        <span aria-hidden="true">✦</span>
+        Recuerdo sorpresa
+      </button>
+    </div>
     <div id="map"></div>
-</div>
+  </div>
+
+  <div class="places-panel">
+    <div>
+      <p class="panel-kicker">Elige una parada</p>
+      <p class="panel-copy">Cada corazón abre una pequeña galería.</p>
+    </div>
+    <div id="places-list" class="places-list" aria-label="Lista de lugares"></div>
+  </div>
+</section>
 
 <style>
-  #map-container {
-    height: 60vh;
-    width: 100%;
-    border-radius: 20px;
+  .map-shell {
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 26px;
+    background: var(--glass);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(16px);
+  }
+
+  #map-container {
     position: relative;
     z-index: 1;
+    width: 100%;
+    height: min(66vh, 650px);
+    min-height: 480px;
+    overflow: hidden;
+    border-radius: 25px 25px 0 0;
   }
 
   #map {
-    height: 100%;
     width: 100%;
-    background: #dddddd;
+    height: 100%;
+    background: #e9eef1;
   }
 
-  /* --- MODO NOCHE (Inversión de colores) --- */
+  .map-actions {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    z-index: 500;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: end;
+    gap: 0.45rem;
+    max-width: calc(100% - 5rem);
+  }
+
+  .map-actions button {
+    display: flex;
+    align-items: center;
+    gap: 0.38rem;
+    padding: 0.62rem 0.75rem;
+    border: 1px solid rgba(198, 47, 90, 0.12);
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 6px 20px rgba(86, 41, 61, 0.12);
+    color: var(--primary-dark);
+    cursor: pointer;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .map-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 22px rgba(86, 41, 61, 0.18);
+  }
+
+  .places-panel {
+    display: grid;
+    grid-template-columns: minmax(170px, 0.24fr) 1fr;
+    gap: 1rem;
+    padding: 0.95rem 1rem 1rem;
+  }
+
+  .panel-kicker,
+  .panel-copy {
+    margin: 0;
+  }
+
+  .panel-kicker {
+    color: var(--primary);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .panel-copy {
+    margin-top: 0.28rem;
+    color: var(--muted-color);
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+
+  .places-list {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding: 0.1rem 0 0.35rem;
+    scrollbar-color: rgba(198, 47, 90, 0.55) transparent;
+    scrollbar-width: thin;
+  }
+
+  :global(.place-chip) {
+    flex: 0 0 auto;
+    padding: 0.52rem 0.68rem;
+    border: 1px solid rgba(198, 47, 90, 0.12);
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.52);
+    color: var(--primary-dark);
+    cursor: pointer;
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background 0.22s ease, color 0.22s ease, transform 0.22s ease;
+  }
+
+  :global(.place-chip:hover),
+  :global(.place-chip.is-active) {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  :global(body.night .place-chip) {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
+    color: #f9d4dd;
+  }
+
+  :global(body.night .place-chip:hover),
+  :global(body.night .place-chip.is-active) {
+    background: var(--primary);
+    color: #fff;
+  }
+
   :global(.night-mode .leaflet-layer) {
     filter: invert(100%) hue-rotate(180deg) brightness(0.95) contrast(0.9);
   }
 
-  /* Estilos del Popup */
-  :global(.leaflet-popup-content-wrapper) {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 12px;
-    padding: 0;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-  }
-  :global(.leaflet-popup-content) {
-    margin: 10px;
-    width: 260px !important; /* Un poco más ancho para el video */
+  :global(.memory-pin) {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50% 50% 50% 12%;
+    background: linear-gradient(145deg, #ec6688, #bd214e);
+    box-shadow: 0 7px 14px rgba(111, 34, 61, 0.3);
+    color: #fff;
+    font-size: 1.15rem;
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
   }
 
-  /* Carrusel */
-  :global(.popup-carrusel) {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 8px;
-    padding-bottom: 8px;
+  :global(.memory-pin span) {
+    transform: rotate(45deg);
   }
-  
-  /* Estilo para FOTOS y VIDEOS */
+
+  :global(.leaflet-marker-icon:hover .memory-pin) {
+    transform: rotate(-45deg) scale(1.13);
+  }
+
+  :global(.leaflet-popup-content-wrapper) {
+    overflow: hidden;
+    border-radius: 17px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 16px 36px rgba(60, 38, 46, 0.2);
+  }
+
+  :global(.leaflet-popup-content) {
+    width: 284px !important;
+    margin: 0;
+  }
+
+  :global(.popup-copy) {
+    padding: 0.8rem 0.85rem 0.85rem;
+  }
+
+  :global(.popup-kicker) {
+    margin: 0 0 0.18rem;
+    color: #c62f5a;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  :global(.popup-title) {
+    margin: 0;
+    color: #8f2044;
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.7rem;
+    line-height: 1;
+  }
+
+  :global(.popup-detail) {
+    margin: 0.55rem 0 0;
+    color: #5e4b53;
+    font-size: 0.76rem;
+    line-height: 1.55;
+  }
+
+  :global(.popup-carousel) {
+    display: flex;
+    gap: 3px;
+    overflow-x: auto;
+    background: #efe5e8;
+    scroll-snap-type: x mandatory;
+    scrollbar-color: #c62f5a transparent;
+    scrollbar-width: thin;
+  }
+
   :global(.popup-media) {
-    scroll-snap-align: center;
     flex: 0 0 100%;
     width: 100%;
-    height: 180px; /* Altura uniforme */
+    height: 194px;
+    border: 0;
+    background: #241d21;
     object-fit: cover;
-    border-radius: 8px;
-    background: #000; /* Fondo negro para videos */
-  }
-  /* --- PERSONALIZACIÓN DE BOTONES DE ZOOM --- */
-  
-  /* 1. Quitamos el borde feo que los une */
-  :global(.leaflet-control-zoom) {
-    border: none !important;
-    box-shadow: none !important;
+    scroll-snap-align: center;
   }
 
-  /* 2. Estilo para CADA botón (+ y -) */
+  :global(.leaflet-control-zoom) {
+    border: 0 !important;
+  }
+
   :global(.leaflet-control-zoom-in),
   :global(.leaflet-control-zoom-out) {
-    background-color: rgba(255, 255, 255, 0.9) !important; /* Blanco casi puro */
-    color: #d11141 !important; /* El rojo de tu tema */
-    border-radius: 50% !important; /* ¡CÍRCULOS PERFECTOS! */
-    width: 40px !important;
-    height: 40px !important;
-    line-height: 40px !important; /* Para centrar el texto verticalmente */
-    font-size: 20px !important;
-    font-weight: bold !important;
-    margin-bottom: 12px !important; /* Espacio entre ellos */
-    box-shadow: 0 4px 15px rgba(209, 17, 65, 0.2) !important; /* Sombra roja suave */
-    border: none !important;
-    transition: all 0.3s ease;
-    
-    /* Centrar el signo + y - perfectamente */
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
+    display: grid !important;
+    width: 38px !important;
+    height: 38px !important;
+    margin-bottom: 0.42rem;
+    place-items: center;
+    border: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    box-shadow: 0 5px 16px rgba(111, 34, 61, 0.16);
+    color: #c62f5a !important;
+    font-size: 1.1rem !important;
+    font-weight: 700;
+    line-height: 1 !important;
   }
 
-  /* 3. Efecto al pasar el mouse (Hover) */
-  :global(.leaflet-control-zoom-in:hover),
-  :global(.leaflet-control-zoom-out:hover) {
-    transform: scale(1.15); /* Se agrandan un poquito */
-    background-color: #fff !important;
-    box-shadow: 0 6px 20px rgba(209, 17, 65, 0.4) !important;
-    cursor: pointer;
+  @media (max-width: 700px) {
+    #map-container {
+      height: 58vh;
+      min-height: 430px;
+    }
+
+    .places-panel {
+      display: block;
+    }
+
+    .places-list {
+      margin-top: 0.72rem;
+    }
+
+    .map-actions {
+      top: 0.68rem;
+      right: 0.68rem;
+    }
+
+    .map-actions button {
+      padding: 0.54rem 0.62rem;
+      font-size: 0.59rem;
+    }
   }
 </style>
 
 <script>
   import L from 'leaflet';
 
-  // --- 1. TUS DATOS EXACTOS ---
   const lugares = [
     {
-      nombre: "Paradero Yungay",
+      nombre: 'Paradero Yungay',
       coords: [-9.140483, -77.747122],
-      carpeta: "/assets/paradero_yungay/",
-      archivos: ["1.webp", "2.webp"],
-      detalle: "Donde todo comenzó."
+      carpeta: '/assets/paradero_yungay/',
+      archivos: ['1.webp', '2.webp'],
+      detalle: 'Donde todo comenzó.',
     },
     {
-      nombre: "Plaza de Armas Huaraz",
+      nombre: 'Plaza de Armas de Huaraz',
       coords: [-9.530076652832513, -77.5289125049557],
-      carpeta: "/assets/plaza_huaraz/",
-      archivos: ["1.webp", "2.webp", "3.webp", "4.webm"], // ¡Incluye el video!
-      detalle: "Nuestra primera navidad ❤️🎄."
+      carpeta: '/assets/plaza_huaraz/',
+      archivos: ['1.webp', '2.webp', '3.webp', '4.webm', '5.webp'],
+      detalle: 'Nuestra primera Navidad y una nueva foto para guardar.',
     },
     {
-      nombre: "Restaurante Alpamayo",
+      nombre: 'Restaurante Alpamayo',
       coords: [-9.137856496203716, -77.74927478735465],
-      carpeta: "/assets/restaurante_alpamayo/",
-      archivos: ["1.webp", "2.webp"],
-      detalle: "Nos encanta la comida 🥩."
+      carpeta: '/assets/restaurante_alpamayo/',
+      archivos: ['1.webp', '2.webp'],
+      detalle: 'Uno de esos lugares que ya se sienten nuestros.',
     },
     {
-      nombre: "Hospital Yungay",
+      nombre: 'Hospital Yungay',
       coords: [-9.138485550280874, -77.74547412468203],
-      carpeta: "/assets/hospital_yungay/",
-      archivos: ["1.webp", "2.webp"],
-      detalle: "El lugar menos esperado para inicar una historia."
+      carpeta: '/assets/hospital_yungay/',
+      archivos: ['1.webp', '2.webp', '3.webp', '4.webp', '5-optimizada.webp', '6.webp'],
+      detalle: 'El lugar menos esperado para iniciar una historia.',
     },
     {
-      nombre: "Pastorita Huarazina",
+      nombre: 'Pastorita Huarazina',
       coords: [-9.523613044180848, -77.52563108130438],
-      carpeta: "/assets/pastorita/",
-      archivos: ["1.webp", "2.webp", "3.webp"],
-      detalle: "Me gusta tu compañia ❤️."
+      carpeta: '/assets/pastorita/',
+      archivos: ['1.webp', '2.webp', '3.webp'],
+      detalle: 'Me gusta tu compañía y volver aquí contigo.',
     },
     {
-      nombre: "Santa Cruz",
+      nombre: 'Santa Cruz',
       coords: [-9.52636950512217, -77.53031466746233],
-      carpeta: "/assets/santa_cruz/",
-      archivos: ["1.webp"],
-      detalle: "Ya se volvio nuestro favorito"
+      carpeta: '/assets/santa_cruz/',
+      archivos: ['1.webp'],
+      detalle: 'Ya se volvió uno de nuestros favoritos.',
     },
     {
-      nombre: "Nuestra Primera Casita",
+      nombre: 'Nuestra primera casita',
       coords: [-9.531765036825135, -77.52417912371611],
-      carpeta: "/assets/primera_casita/",
-      archivos: ["1.webp", "2.webp", "3.webp"],
-      detalle: "El primer lugar donde convivimos🧀"
+      carpeta: '/assets/primera_casita/',
+      archivos: ['1.webp', '2.webp', '3.webp'],
+      detalle: 'Nuestro primer rinconcito para compartir lo cotidiano.',
     },
     {
-      nombre: "Nuestra Primera Laguna",
+      nombre: 'Laguna Parón',
       coords: [-8.992755144750406, -77.67236627008545],
-      carpeta: "/assets/primera_laguna/",
-      archivos: ["1.webp", "2.webp", "3.webp", "4.webp", "5.webp"],
-      detalle: "Laguna Parón🏞️"
+      carpeta: '/assets/primera_laguna/',
+      archivos: ['1.webp', '2.webp', '3.webp', '4.webp', '5.webp'],
+      detalle: 'Nuestra primera laguna y una vista imposible de olvidar.',
     },
     {
-      nombre: "A donde llegaste sin pensarlo",
+      nombre: 'Hospital Víctor Ramos',
       coords: [-9.534458845513504, -77.52929508952055],
-      carpeta: "/assets/victor_ramos/",
-      archivos: ["1.webp", "2.webp", "3.webp", "4.webp", "5.webp"],
-      detalle: "Chucky siempre te seguira"
+      carpeta: '/assets/victor_ramos/',
+      archivos: ['1.webp'],
+      detalle: 'A donde llegaste sin pensarlo y empezó otro capítulo.',
     },
     {
-      nombre: "Casi nos quedamos sin carro",
+      nombre: 'Caraz',
       coords: [-9.047670367115265, -77.81054769300849],
-      carpeta: "/assets/caraz/",
-      archivos: ["1.webm"],
-      detalle: "Por comer pollito 🍗"
+      carpeta: '/assets/caraz/',
+      archivos: ['1.webm'],
+      detalle: 'Casi nos quedamos sin carro por comer pollito.',
     },
     {
-      nombre: "Año nuevo en chimbote",
+      nombre: 'Año Nuevo en Chimbote',
       coords: [-9.079268557290458, -78.58671285799079],
-      carpeta: "/assets/chimbote/",
-      archivos: ["1.webp", "2.webp", "3.webm", "4.webp", "5.webp", "6.webp"],
-      detalle: "Se quedo dormida con el brindis 🍷"
+      carpeta: '/assets/chimbote/',
+      archivos: ['1.webp', '2.webp', '3.webm', '4.webp', '5.webp', '6.webp'],
+      detalle: 'La noche del brindis, el viaje y una anécdota para siempre.',
+    },
+    {
+      nombre: 'Huanchaco',
+      coords: [-8.079947, -79.120712],
+      carpeta: '/assets/huanchaco/',
+      archivos: ['1.webp', '2.webp'],
+      detalle: 'Un beso frente al mar y otro recuerdo que vale la pena guardar.',
+    },
+    {
+      nombre: 'Plaza de Armas de Trujillo',
+      coords: [-8.111786, -79.028776],
+      carpeta: '/assets/plaza_trujillo/',
+      archivos: ['1.webp', '2.webp'],
+      detalle: 'Una caminata juntos por el corazón de Trujillo.',
     },
   ];
 
-  // --- 2. INICIALIZAR EL MAPA ---
+  const escapeHtml = (value) =>
+    value.replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
+    })[character]);
+
   const mapStyle = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-
   const container = L.DomUtil.get('map');
-  if(container != null){ container._leaflet_id = null; }
+  if (container != null) container._leaflet_id = null;
 
-  // Centramos el mapa en Huaraz (Plaza de Armas) inicialmente
-  // Zoom 9 para que se vea tanto Yungay como Huaraz al principio
-  const map = L.map('map').setView([-9.35, -77.60], 10); 
+  const map = L.map('map', { zoomControl: false }).setView([-9.35, -77.78], 8);
+  L.control.zoom({ position: 'topleft' }).addTo(map);
 
   L.tileLayer(mapStyle, {
     attribution: '© OpenStreetMap & CartoDB',
     subdomains: 'abcd',
-    maxZoom: 20
+    maxZoom: 20,
   }).addTo(map);
 
-  // --- 3. LÓGICA DE HORA (DÍA / NOCHE) ---
-  const hour = new Date().getHours();
   const mapContainer = document.getElementById('map-container');
+  const hour = new Date().getHours();
+  if (hour >= 19 || hour < 6) mapContainer?.classList.add('night-mode');
 
-  if (hour >= 19 || hour < 6) {
-      mapContainer.classList.add('night-mode');
-  } else {
-      mapContainer.classList.remove('night-mode');
-  }
-
-  // --- 4. ICONO CORAZÓN ---
   const iconoCorazon = L.divIcon({
-    html: `<div style="font-size: 32px; filter: drop-shadow(0 3px 2px rgba(0,0,0,0.3)); transition: transform 0.2s;">❤️</div>`,
-    className: 'custom-icon',
-    iconSize: [35, 35],
-    iconAnchor: [17, 35], // Punta del corazón en la coordenada
-    popupAnchor: [0, -35]
+    html: '<div class="memory-pin"><span>♥</span></div>',
+    className: 'memory-marker',
+    iconSize: [36, 43],
+    iconAnchor: [18, 42],
+    popupAnchor: [0, -38],
   });
 
-  // --- 5. GENERAR MARCADORES ---
-  lugares.forEach(lugar => {
-    
-    // Lógica para detectar si es VIDEO o FOTO
-    const mediaHtml = lugar.archivos.map(archivo => {
-        const rutaCompleta = lugar.carpeta + archivo;
-        
-        // Aceptamos mp4 O webm como video
-        if (archivo.endsWith('.mp4') || archivo.endsWith('.webm')) {
-            // Es un video
-            return `<video src="${rutaCompleta}" class="popup-media" controls playsinline></video>`;
-        } else {
-            // Es una imagen
-            return `<img src="${rutaCompleta}" class="popup-media" onerror="this.style.display='none'"/>`;
-        }
+  const markers = [];
+  let activeChip = null;
+
+  function setActiveChip(index) {
+    activeChip?.classList.remove('is-active');
+    activeChip = document.querySelector(`[data-place-index="${index}"]`);
+    activeChip?.classList.add('is-active');
+  }
+
+  function openMemory(index) {
+    const lugar = lugares[index];
+    const marker = markers[index];
+    map.flyTo(lugar.coords, lugar.nombre === 'Huanchaco' || lugar.nombre.includes('Trujillo') ? 13 : 15, {
+      duration: 0.9,
+    });
+    marker.openPopup();
+    setActiveChip(index);
+  }
+
+  lugares.forEach((lugar, index) => {
+    const safeName = escapeHtml(lugar.nombre);
+    const mediaHtml = lugar.archivos.map((archivo, mediaIndex) => {
+      const rutaCompleta = lugar.carpeta + archivo;
+      const alt = `${safeName}, recuerdo ${mediaIndex + 1}`;
+
+      if (archivo.endsWith('.mp4') || archivo.endsWith('.webm')) {
+        const webmPath = rutaCompleta.replace(/\.(mp4|webm)$/, '.webm');
+        const mp4Path = rutaCompleta.replace(/\.(mp4|webm)$/, '.mp4');
+        return `
+          <video class="popup-media" controls playsinline preload="none" aria-label="${alt}">
+            <source src="${webmPath}" type="video/webm" />
+            <source src="${mp4Path}" type="video/mp4" />
+          </video>
+        `;
+      }
+
+      return `<img src="${rutaCompleta}" class="popup-media" alt="${alt}" loading="lazy" decoding="async" />`;
     }).join('');
 
-    // HTML del Popup
     const popupHtml = `
-      <div style="font-family: 'Montserrat', sans-serif;">
-        <h3 style="color: #d11141; margin: 0 0 8px 0; font-family: 'Dancing Script', cursive; font-size: 22px;">${lugar.nombre}</h3>
-        <div class="popup-carrusel">
-            ${mediaHtml}
+      <div>
+        <div class="popup-carousel">${mediaHtml}</div>
+        <div class="popup-copy">
+          <p class="popup-kicker">${lugar.archivos.length} ${lugar.archivos.length === 1 ? 'recuerdo' : 'recuerdos'}</p>
+          <h3 class="popup-title">${safeName}</h3>
+          <p class="popup-detail">${escapeHtml(lugar.detalle)}</p>
         </div>
-        <p style="font-size: 13px; color: #444; margin-top: 8px; line-height: 1.4;">${lugar.detalle}</p>
       </div>
     `;
 
-    L.marker(lugar.coords, { icon: iconoCorazon }).addTo(map).bindPopup(popupHtml);
+    const marker = L.marker(lugar.coords, { icon: iconoCorazon })
+      .addTo(map)
+      .bindPopup(popupHtml, { maxWidth: 284 });
+
+    marker.on('popupopen', () => setActiveChip(index));
+    markers.push(marker);
+  });
+
+  const placesList = document.getElementById('places-list');
+  if (placesList) {
+    placesList.innerHTML = lugares.map((lugar, index) =>
+      `<button class="place-chip" type="button" data-place-index="${index}">${escapeHtml(lugar.nombre)}</button>`
+    ).join('');
+
+    placesList.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-place-index]');
+      if (!button) return;
+      openMemory(Number(button.dataset.placeIndex));
+    });
+  }
+
+  document.getElementById('fit-route')?.addEventListener('click', () => {
+    map.fitBounds(L.featureGroup(markers).getBounds().pad(0.12), { animate: true, duration: 0.9 });
+    activeChip?.classList.remove('is-active');
+    activeChip = null;
+  });
+
+  let lastRandomIndex = -1;
+  document.getElementById('random-memory')?.addEventListener('click', () => {
+    let nextIndex = Math.floor(Math.random() * lugares.length);
+    if (nextIndex === lastRandomIndex) nextIndex = (nextIndex + 1) % lugares.length;
+    lastRandomIndex = nextIndex;
+    openMemory(nextIndex);
   });
 </script>
